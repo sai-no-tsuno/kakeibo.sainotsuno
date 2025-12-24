@@ -1,0 +1,39 @@
+/* Report Page Styles */
+.report-page {
+  padding: 20px;
+}
+
+.month-selector {
+  margin-bottom: 20px;
+}
+
+.month-selector label {
+  margin-right: 10px;
+  font-weight: bold;
+}
+
+.month-selector input {
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.report-charts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.chart-container {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+@media (max-width: 768px) {
+  .report-charts {
+    grid-template-columns: 1fr;
+  }
+}

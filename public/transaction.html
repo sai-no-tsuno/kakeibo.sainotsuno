@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>収支管理</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f5f5f5;
+      padding: 10px;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+      color: white;
+      padding: 20px;
+      text-align: center;
+      border-radius: 12px;
+      margin-bottom: 20px;
+    }
+
+    .header h1 {
+      font-size: 28px;
+      margin-bottom: 10px;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    nav {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    nav a {
+      padding: 10px 20px;
+      background-color: #2196F3;
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: bold;
+      transition: background-color 0.3s;
+    }
+
+    nav a:hover {
+      background-color: #1976D2;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      border-bottom: 2px solid #ddd;
+    }
+
+    .tab-btn {
+      padding: 10px 20px;
+      background: none;
+      border: none;
+      border-bottom: 3px solid transparent;
+      cursor: pointer;
+      font-weight: bold;
+      color: #666;
+      transition: all 0.3s;
+    }
+
+    .tab-btn.active {
+      color: #2196F3;
+      border-bottom-color: #2196F3;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    .form-section {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
+    }
+
+    .form-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr 1fr auto;
+      gap: 10px;
+      margin-bottom: 15px;
+      align-items: flex-end;
+    }
+
+    .form-group.full {
+      grid-template-columns: 1fr;
+    }
+
+    label {
+      display: block;
+      font-weight: bold;
+      color: #333;
+      font-size: 14px;
+      margin-bottom: 5px;
+    }
+
+    input, select, textarea {
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 14px;
+      width: 100%;
+      font-family: inherit;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 60px;
+    }
+
+    button {
+      padding: 10px 20px;
+      background-color: #2196F3;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #1976D2;
+    }
+
+    .receipt-preview {
+      max-width: 200px;
+      margin-top: 10px;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .transaction-list {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .transaction-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px;
+      border-bottom: 1px solid #eee;
+      background: #f9f9f9;
+      border-radius: 8px;
+      margin-bottom: 10px;
+    }
+
+    .transaction-item:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+    }
+
+    .transaction-info {
+      flex: 1;
+    }
+
+    .transaction-header {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 5px;
+    }
+
+    .transaction-category {
+      font-weight: bold;
+      color: #333;
+    }
+
+    .transaction-time {
+      font-size: 12px;
+      color: #999;
+    }
+
+    .transaction-description {
+      font-size: 12px;
+      color: #999;
+      margin-top: 5px;
+    }
+
+    .receipt-img {
+      width: 30px;
+      height: 30px;
+      border-radius: 4px;
+      object-fit: cover;
+      margin-right: 10px;
+    }
+
+    .transaction-amount {
+      font-weight: bold;
+      font-size: 16px;
+      margin-right: 10px;
+    }
+
+    .transaction-amount.income {
+      color: #4CAF50;
+    }
+
+    .transaction-amount.expense {
+      color: #f44336;
+    }
+
+    .delete-btn {
+      background-color: #f44336;
+      padding: 5px 10px;
+      font-size: 12px;
+    }
+
+    .delete-btn:hover {
+      background-color: #da190b;
+    }
+
+    .quick-buttons {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+
+    .quick-btn {
+      padding: 10px;
+      background-color: #f0f0f0;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: all 0.3s;
+    }
+
+    .quick-btn:hover {
+      background-color: #e0e0e0;
+      border-color: #2196F3;
+    }
+
+    @media (max-width: 768px) {
+      .form-group {
+        grid-template-columns: 1fr;
+      }
+
+      nav {
+        flex-direction: column;
+      }
+
+      nav a {
+        width: 100%;
+        text-align: center;
+      }
+    }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>📱 Zaim風 収支管理</h1>
+    <p>シンプルで使いやすい家計簿</p>
+  </div>
+
+  <div class="container">
+    <nav>
+      <a href="index.html">ダッシュボード</a>
+      <a href="transaction.html">収支管理</a>
+      <a href="budget.html">予算管理</a>
+      <a href="goal.html">貯金目標</a>
+      <a href="report.html">レポート</a>
+    </nav>
+
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('quick')" data-tab="quick">💨 クイック入力</button>
+      <button class="tab-btn" onclick="switchTab('detailed')" data-tab="detailed">📝 詳細入力</button>
+      <button class="tab-btn" onclick="switchTab('history')" data-tab="history">📋 履歴</button>
+      <button class="tab-btn" onclick="switchTab('recurring')" data-tab="recurring">🔄 定期支出</button>
+    </div>
+
+    <!-- クイック入力タブ -->
+    <div id="quick" class="tab-content active">
+      <div class="form-section">
+        <h2>💨 クイック入力</h2>
+        <p style="color: #999; margin-bottom: 15px;">よく使う金額を素早く入力</p>
+        <div class="quick-buttons">
+          <button class="quick-btn" onclick="quickAdd(500, 'コーヒー', 'expense')">☕ 500円</button>
+          <button class="quick-btn" onclick="quickAdd(1000, 'ランチ', 'expense')">🍜 1000円</button>
+          <button class="quick-btn" onclick="quickAdd(3000, 'ディナー', 'expense')">🍽️ 3000円</button>
+          <button class="quick-btn" onclick="quickAdd(5000, 'ガソリン', 'expense')">⛽ 5000円</button>
+          <button class="quick-btn" onclick="quickAdd(10000, '給料', 'income')">💰 10000円</button>
+        </div>
+        <form id="quick-form" style="margin-top: 20px;">
+          <div class="form-group">
+            <div>
+              <label for="quick-category">カテゴリ</label>
+              <select id="quick-category" required>
+                <option value="食費">🍔 食費</option>
+                <option value="交通費">🚗 交通費</option>
+                <option value="娯楽">🎮 娯楽</option>
+                <option value="日用品">🛁 日用品</option>
+                <option value="その他">📝 その他</option>
+              </select>
+            </div>
+            <div>
+              <label for="quick-amount">金額</label>
+              <input type="number" id="quick-amount" min="0" required>
+            </div>
+            <div>
+              <label for="quick-time">時刻</label>
+              <input type="time" id="quick-time" required>
+            </div>
+            <button type="submit">追加</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- 詳細入力タブ -->
+    <div id="detailed" class="tab-content">
+      <div class="form-section">
+        <h2>📝 詳細入力</h2>
+        <form id="detailed-form">
+          <div class="form-group">
+            <div>
+              <label for="type">タイプ</label>
+              <select id="type" required>
+                <option value="expense">💸 支出</option>
+                <option value="income">💰 収入</option>
+              </select>
+            </div>
+            <div>
+              <label for="category">カテゴリ</label>
+              <select id="category" required>
+                <option value="食費">🍔 食費</option>
+                <option value="交通費">🚗 交通費</option>
+                <option value="娯楽">🎮 娯楽</option>
+                <option value="日用品">🛁 日用品</option>
+                <option value="その他">📝 その他</option>
+              </select>
+            </div>
+            <div>
+              <label for="amount">金額</label>
+              <input type="number" id="amount" min="0" required>
+            </div>
+            <div>
+              <label for="date">日付</label>
+              <input type="date" id="date" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <div>
+              <label for="time">時刻</label>
+              <input type="time" id="time" required>
+            </div>
+            <div>
+              <label for="shop">お店の名前</label>
+              <input type="text" id="shop" placeholder="例: コンビニA">
+            </div>
+            <div>
+              <label for="receipt">レシート</label>
+              <input type="file" id="receipt" accept="image/*">
+            </div>
+          </div>
+          <div class="form-group full">
+            <label for="description">メモ</label>
+            <textarea id="description" placeholder="詳細を記入..."></textarea>
+          </div>
+          <div class="form-group">
+            <div></div>
+            <div></div>
+            <div></div>
+            <button type="submit">追加</button>
+          </div>
+        </form>
+        <div id="receipt-preview"></div>
+      </div>
+    </div>
+
+    <!-- 履歴タブ -->
+    <div id="history" class="tab-content">
+      <div class="transaction-list">
+        <h2>📋 取引履歴</h2>
+        <div id="transaction-items"></div>
+      </div>
+    </div>
+
+    <!-- 定期支出タブ -->
+    <div id="recurring" class="tab-content">
+      <div class="form-section">
+        <h2>🔄 定期支出を設定</h2>
+        <form id="recurring-form">
+          <div class="form-group">
+            <div>
+              <label for="recurring-name">支出名</label>
+              <input type="text" id="recurring-name" placeholder="例: スマホ料金" required>
+            </div>
+            <div>
+              <label for="recurring-amount">金額</label>
+              <input type="number" id="recurring-amount" min="0" required>
+            </div>
+            <div>
+              <label for="recurring-day">実行日（日付）</label>
+              <input type="number" id="recurring-day" min="1" max="31" required>
+            </div>
+            <button type="submit">追加</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="transaction-list">
+        <h2>📅 登録済み定期支出</h2>
+        <div id="recurring-items"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
+    let recurring = JSON.parse(localStorage.getItem('recurring')) || [];
+
+    // タブ切り替え
+    function switchTab(tabName) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+      document.getElementById(tabName).classList.add('active');
+      document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+    }
+
+    // クイック入力
+    function quickAdd(amount, description, type) {
+      const now = new Date();
+      const date = now.toISOString().split('T')[0];
+      const time = now.toTimeString().split(' ')[0];
+      const category = description;
+
+      transactions.push({ type, category, amount, description, date, time, receipt: null });
+      localStorage.setItem('transactions', JSON.stringify(transactions));
+      renderTransactions();
+    }
+
+    // 詳細入力フォーム送信
+    document.getElementById('detailed-form')?.addEventListener('submit', (e) => {
+      e.preventDefault();
+      
+      const type = document.getElementById('type').value;
+      const category = document.getElementById('category').value;
+      const amount = parseFloat(document.getElementById('amount').value);
+      const date = document.getElementById('date').value;
+      const time = document.getElementById('time').value;
+      const shop = document.getElementById('shop').value;
+      const description = document.getElementById('description').value;
+      const receipt = document.getElementById('receipt').files[0];
+
+      let receiptData = null;
+      if (receipt) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          receiptData = event.target.result;
+          transactions.push({ type, category, amount, date, time, shop, description, receipt: receiptData });
+          localStorage.setItem('transactions', JSON.stringify(transactions));
+          renderTransactions();
+          document.getElementById('detailed-form').reset();
+          document.getElementById('receipt-preview').innerHTML = '';
+        };
+        reader.readAsDataURL(receipt);
+      } else {
+        transactions.push({ type, category, amount, date, time, shop, description, receipt: null });
+        localStorage.setItem('transactions', JSON.stringify(transactions));
+        renderTransactions();
+        document.getElementById('detailed-form').reset();
+      }
+    });
+
+    // クイック入力フォーム
+    document.getElementById('quick-form')?.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const category = document.getElementById('quick-category').value;
+      const amount = parseFloat(document.getElementById('quick-amount').value);
+      const time = document.getElementById('quick-time').value;
+      const date = new Date().toISOString().split('T')[0];
+
+      transactions.push({ type: 'expense', category, amount, description: '', date, time, receipt: null });
+      localStorage.setItem('transactions', JSON.stringify(transactions));
+      renderTransactions();
+      document.getElementById('quick-form').reset();
+    });
+
+    // 定期支出フォーム
+    document.getElementById('recurring-form')?.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const name = document.getElementById('recurring-name').value;
+      const amount = parseFloat(document.getElementById('recurring-amount').value);
+      const day = parseInt(document.getElementById('recurring-day').value);
+
+      recurring.push({ name, amount, day });
+      localStorage.setItem('recurring', JSON.stringify(recurring));
+      renderRecurring();
+      document.getElementById('recurring-form').reset();
+    });
+
+    // 取引を表示
+    function renderTransactions() {
+      const container = document.getElementById('transaction-items');
+      if (!container) return;
+      
+      container.innerHTML = '';
+      if (transactions.length === 0) {
+        container.innerHTML = '<p style="text-align: center; color: #999;">取引がありません</p>';
+        return;
+      }
+
+      const sorted = [...transactions].reverse();
+      sorted.forEach((transaction, index) => {
+        const originalIndex = transactions.length - 1 - index;
+        const item = document.createElement('div');
+        item.className = 'transaction-item';
+        
+        const amountClass = transaction.type === 'income' ? 'income' : 'expense';
+        const prefix = transaction.type === 'income' ? '+' : '−';
+        
+        const dateDisplay = transaction.date ? transaction.date.split('-').reverse().join('/') : '';
+        const timeDisplay = transaction.time || '';
+        
+        let receiptHtml = '';
+        if (transaction.receipt) {
+          receiptHtml = `<img src="${transaction.receipt}" class="receipt-img">`;
+        }
+        
+        item.innerHTML = `
+          ${receiptHtml}
+          <div class="transaction-info">
+            <div class="transaction-header">
+              <span class="transaction-category">${transaction.category}</span>
+              <span class="transaction-time">${dateDisplay} ${timeDisplay}</span>
+            </div>
+            ${transaction.description ? `<div class="transaction-description">${transaction.description}</div>` : ''}
+            ${transaction.shop ? `<div class="transaction-description">🏪 ${transaction.shop}</div>` : ''}
+          </div>
+          <div class="transaction-amount ${amountClass}">${prefix}¥${transaction.amount.toLocaleString()}</div>
+          <button class="delete-btn" onclick="deleteTransaction(${originalIndex})">削除</button>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    // 定期支出を表示
+    function renderRecurring() {
+      const container = document.getElementById('recurring-items');
+      if (!container) return;
+
+      container.innerHTML = '';
+      if (recurring.length === 0) {
+        container.innerHTML = '<p style="text-align: center; color: #999;">定期支出がありません</p>';
+        return;
+      }
+
+      recurring.forEach((item, index) => {
+        const div = document.createElement('div');
+        div.className = 'transaction-item';
+        div.innerHTML = `
+          <div class="transaction-info">
+            <div class="transaction-category">${item.name}</div>
+            <div class="transaction-description">毎月${item.day}日実行</div>
+          </div>
+          <div class="transaction-amount expense">−¥${item.amount.toLocaleString()}</div>
+          <button class="delete-btn" onclick="deleteRecurring(${index})">削除</button>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function deleteTransaction(index) {
+      transactions.splice(index, 1);
+      localStorage.setItem('transactions', JSON.stringify(transactions));
+      renderTransactions();
+    }
+
+    function deleteRecurring(index) {
+      recurring.splice(index, 1);
+      localStorage.setItem('recurring', JSON.stringify(recurring));
+      renderRecurring();
+    }
+
+    // レシートプレビュー
+    document.getElementById('receipt')?.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          const preview = document.getElementById('receipt-preview');
+          preview.innerHTML = `<img src="${event.target.result}" class="receipt-preview">`;
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    // 初期化
+    const today = new Date();
+    document.getElementById('date')?.valueAsDate = today;
+    document.getElementById('quick-time')?.value = today.toTimeString().split(' ')[0];
+    document.getElementById('time')?.value = today.toTimeString().split(' ')[0];
+
+    renderTransactions();
+    renderRecurring();
+  </script>
+</body>
+</html>

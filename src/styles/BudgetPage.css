@@ -1,0 +1,28 @@
+/* Budget Page Styles */
+.budget-page {
+  padding: 20px;
+}
+
+.budget-form {
+  background-color: #ecf0f1;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+}
+
+.budget-form .form-group {
+  margin-bottom: 0;
+}
+
+.budget-form button {
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 768px) {
+  .budget-form {
+    grid-template-columns: 1fr;
+  }
+}

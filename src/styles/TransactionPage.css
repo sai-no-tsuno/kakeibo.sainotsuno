@@ -1,0 +1,28 @@
+/* Transaction Page Styles */
+.transaction-page {
+  padding: 20px;
+}
+
+.transaction-form {
+  background-color: #ecf0f1;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.transaction-form .form-group {
+  display: inline-block;
+  width: calc(20% - 10px);
+  margin-right: 10px;
+}
+
+.transaction-list table {
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .transaction-form .form-group {
+    width: 100%;
+    margin-right: 0;
+  }
+}

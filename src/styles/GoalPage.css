@@ -1,0 +1,28 @@
+/* Goal Page Styles */
+.goal-page {
+  padding: 20px;
+}
+
+.goal-form {
+  background-color: #ecf0f1;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+}
+
+.goal-form .form-group {
+  margin-bottom: 0;
+}
+
+.goal-form button {
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 768px) {
+  .goal-form {
+    grid-template-columns: 1fr;
+  }
+}

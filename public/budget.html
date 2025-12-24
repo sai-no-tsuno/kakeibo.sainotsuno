@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>予算管理</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f5f5f5;
+      padding: 10px;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #FF9800 0%, #F57C00 100%);
+      color: white;
+      padding: 20px;
+      text-align: center;
+      border-radius: 12px;
+      margin-bottom: 20px;
+    }
+
+    .header h1 {
+      font-size: 28px;
+      margin-bottom: 10px;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    nav {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    nav a {
+      padding: 10px 20px;
+      background-color: #FF9800;
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: bold;
+      transition: background-color 0.3s;
+    }
+
+    nav a:hover {
+      background-color: #F57C00;
+    }
+
+    .form-section {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
+    }
+
+    .form-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr auto;
+      gap: 10px;
+      margin-bottom: 15px;
+      align-items: flex-end;
+    }
+
+    label {
+      display: block;
+      font-weight: bold;
+      color: #333;
+      font-size: 14px;
+      margin-bottom: 5px;
+    }
+
+    input, select {
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 14px;
+      width: 100%;
+    }
+
+    button {
+      padding: 10px 20px;
+      background-color: #FF9800;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #F57C00;
+    }
+
+    .budget-list {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .budget-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px;
+      border-bottom: 1px solid #eee;
+      background: #f9f9f9;
+      border-radius: 8px;
+      margin-bottom: 10px;
+    }
+
+    .budget-item:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+    }
+
+    .budget-info {
+      flex: 1;
+    }
+
+    .budget-category {
+      font-weight: bold;
+      color: #333;
+      margin-bottom: 8px;
+    }
+
+    .budget-bar {
+      width: 100%;
+      height: 10px;
+      background: #eee;
+      border-radius: 5px;
+      overflow: hidden;
+      margin-top: 8px;
+    }
+
+    .budget-fill {
+      height: 100%;
+      background: #4CAF50;
+      transition: width 0.3s;
+    }
+
+    .budget-fill.warning {
+      background: #ff9800;
+    }
+
+    .budget-fill.danger {
+      background: #f44336;
+    }
+
+    .budget-stats {
+      font-size: 12px;
+      color: #999;
+      margin-top: 5px;
+    }
+
+    .delete-btn {
+      background-color: #f44336;
+      padding: 5px 10px;
+      font-size: 12px;
+      margin-left: 10px;
+    }
+
+    .delete-btn:hover {
+      background-color: #da190b;
+    }
+
+    .month-selector {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .month-selector input {
+      width: 150px;
+    }
+
+    @media (max-width: 768px) {
+      .form-group {
+        grid-template-columns: 1fr;
+      }
+
+      nav {
+        flex-direction: column;
+      }
+
+      nav a {
+        width: 100%;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>💰 予算管理</h1>
+    <p>カテゴリごとに予算を設定して支出を管理しましょう</p>
+  </div>
+
+  <div class="container">
+    <nav>
+      <a href="index.html">ダッシュボード</a>
+      <a href="transaction.html">収支管理</a>
+      <a href="budget.html">予算管理</a>
+      <a href="goal.html">貯金目標</a>
+      <a href="report.html">レポート</a>
+    </nav>
+
+    <div class="month-selector">
+      <label for="budget-month">月を選択:</label>
+      <input type="month" id="budget-month">
+    </div>
+
+    <div class="form-section">
+      <h2>📝 予算を設定</h2>
+      <form id="budget-form">
+        <div class="form-group">
+          <div>
+            <label for="category">カテゴリ</label>
+            <select id="category" required>
+              <option value="食費">🍔 食費</option>
+              <option value="交通費">🚗 交通費</option>
+              <option value="娯楽">🎮 娯楽</option>
+              <option value="日用品">🛁 日用品</option>
+              <option value="その他">📝 その他</option>
+            </select>
+          </div>
+          <div>
+            <label for="budget-amount">予算額（円）</label>
+            <input type="number" id="budget-amount" min="0" required>
+          </div>
+          <div>
+            <label for="budget-month-input">対象月</label>
+            <input type="month" id="budget-month-input" required>
+          </div>
+          <button type="submit">設定</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="budget-list">
+      <h2>📊 予算と使用状況</h2>
+      <div id="budget-items"></div>
+    </div>
+  </div>
+
+  <script>
+    let budgets = JSON.parse(localStorage.getItem('budgets')) || [];
+    let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
+
+    const today = new Date();
+    document.getElementById('budget-month').valueAsDate = today;
+    document.getElementById('budget-month-input').valueAsDate = today;
+
+    // 月を変更したときに再表示
+    document.getElementById('budget-month').addEventListener('change', () => {
+      renderBudgets();
+    });
+
+    function renderBudgets() {
+      const container = document.getElementById('budget-items');
+      const selectedMonth = document.getElementById('budget-month').value || today.toISOString().slice(0, 7);
+      
+      container.innerHTML = '';
+
+      if (budgets.length === 0) {
+        container.innerHTML = '<p style="text-align: center; color: #999;">予算を設定してください</p>';
+        return;
+      }
+
+      // 選択月の予算のみを表示
+      const monthBudgets = budgets.filter(b => (b.month || '').slice(0, 7) === selectedMonth);
+
+      if (monthBudgets.length === 0) {
+        container.innerHTML = '<p style="text-align: center; color: #999;">この月の予算がありません</p>';
+        return;
+      }
+
+      monthBudgets.forEach((budget, index) => {
+        const budgetIndex = budgets.indexOf(budget);
+        
+        // その月とカテゴリの支出を計算
+        const used = transactions
+          .filter(t => {
+            if (!t.date) return false;
+            const tMonth = t.date.slice(0, 7);
+            return t.category === budget.category && t.type === 'expense' && tMonth === selectedMonth;
+          })
+          .reduce((sum, t) => sum + parseFloat(t.amount || 0), 0);
+        
+        const percentage = (used / budget.amount) * 100;
+        let statusClass = '';
+        if (percentage >= 100) statusClass = 'danger';
+        else if (percentage >= 80) statusClass = 'warning';
+
+        const item = document.createElement('div');
+        item.className = 'budget-item';
+        
+        item.innerHTML = `
+          <div class="budget-info" style="flex: 1;">
+            <div class="budget-category">${budget.category}</div>
+            <div class="budget-bar">
+              <div class="budget-fill ${statusClass}" style="width: ${Math.min(percentage, 100)}%"></div>
+            </div>
+            <div class="budget-stats">
+              使用: ¥${used.toLocaleString()} / 予算: ¥${budget.amount.toLocaleString()} 
+              (${Math.round(percentage)}%)
+            </div>
+          </div>
+          <button class="delete-btn" onclick="deleteBudget(${budgetIndex})">削除</button>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    function deleteBudget(index) {
+      budgets.splice(index, 1);
+      localStorage.setItem('budgets', JSON.stringify(budgets));
+      renderBudgets();
+    }
+
+    document.getElementById('budget-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      
+      const category = document.getElementById('category').value;
+      const amount = parseFloat(document.getElementById('budget-amount').value);
+      const month = document.getElementById('budget-month-input').value;
+
+      budgets.push({ category, amount, month });
+      localStorage.setItem('budgets', JSON.stringify(budgets));
+      
+      document.getElementById('budget-form').reset();
+      document.getElementById('budget-month-input').valueAsDate = today;
+      renderBudgets();
+    });
+
+    renderBudgets();
+  </script>
+</body>
+</html>
+      <a href="report.html">レポート</a>
+    </nav>
+    <p>ここでは予算を管理できます。</p>
+  </div>
+</body>
+</html>

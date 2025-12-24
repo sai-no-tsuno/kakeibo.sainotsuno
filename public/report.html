@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>レポート</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f5f5f5;
+      padding: 10px;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #9C27B0 0%, #7B1FA2 100%);
+      color: white;
+      padding: 20px;
+      text-align: center;
+      border-radius: 12px;
+      margin-bottom: 20px;
+    }
+
+    .header h1 {
+      font-size: 28px;
+      margin-bottom: 10px;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    nav {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    nav a {
+      padding: 10px 20px;
+      background-color: #9C27B0;
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: bold;
+      transition: background-color 0.3s;
+    }
+
+    nav a:hover {
+      background-color: #7B1FA2;
+    }
+
+    .month-selector {
+      text-align: center;
+      margin-bottom: 20px;
+      background: white;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .month-selector input {
+      width: 150px;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+
+    .dashboard {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .card {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .card h2 {
+      color: #333;
+      margin-bottom: 15px;
+      font-size: 18px;
+    }
+
+    .stat-group {
+      display: flex;
+      justify-content: space-around;
+      margin-bottom: 15px;
+    }
+
+    .stat {
+      text-align: center;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: #999;
+      margin-bottom: 5px;
+    }
+
+    .stat-value {
+      font-size: 20px;
+      font-weight: bold;
+      color: #333;
+    }
+
+    .stat-value.income {
+      color: #4CAF50;
+    }
+
+    .stat-value.expense {
+      color: #f44336;
+    }
+
+    .chart-container {
+      position: relative;
+      height: 300px;
+      margin-top: 15px;
+    }
+
+    .summary-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
+
+    .summary-table td {
+      padding: 10px;
+      border-bottom: 1px solid #eee;
+    }
+
+    .summary-table td:first-child {
+      font-weight: bold;
+      width: 40%;
+    }
+
+    .summary-table td:last-child {
+      text-align: right;
+      font-weight: bold;
+    }
+
+    .category-breakdown {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .category-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid #eee;
+    }
+
+    .category-item:last-child {
+      border-bottom: none;
+    }
+
+    .category-name {
+      font-weight: bold;
+      color: #333;
+    }
+
+    .category-amount {
+      color: #f44336;
+      font-weight: bold;
+    }
+
+    @media (max-width: 768px) {
+      .dashboard {
+        grid-template-columns: 1fr;
+      }
+
+      nav {
+        flex-direction: column;
+      }
+
+      nav a {
+        width: 100%;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>📊 レポート</h1>
+    <p>収支の統計分析と詳細レポート</p>
+  </div>
+
+  <div class="container">
+    <nav>
+      <a href="index.html">ダッシュボード</a>
+      <a href="transaction.html">収支管理</a>
+      <a href="budget.html">予算管理</a>
+      <a href="goal.html">貯金目標</a>
+      <a href="report.html">レポート</a>
+    </nav>
+
+    <div class="month-selector">
+      <label for="report-month">月を選択:</label>
+      <input type="month" id="report-month">
+    </div>
+
+    <div class="dashboard">
+      <div class="card">
+        <h2>📈 今月の収支</h2>
+        <div class="stat-group">
+          <div class="stat">
+            <div class="stat-label">収入</div>
+            <div class="stat-value income" id="report-income">¥0</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">支出</div>
+            <div class="stat-value expense" id="report-expense">¥0</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">残額</div>
+            <div class="stat-value" id="report-balance">¥0</div>
+          </div>
+        </div>
+        <table class="summary-table">
+          <tr>
+            <td>日数:</td>
+            <td id="days">0</td>
+          </tr>
+          <tr>
+            <td>1日平均支出:</td>
+            <td id="avg-expense">¥0</td>
+          </tr>
+          <tr>
+            <td>貯蓄率:</td>
+            <td id="savings-rate">0%</td>
+          </tr>
+        </table>
+      </div>
+
+      <div class="card">
+        <h2>🍰 支出内訳</h2>
+        <div class="chart-container">
+          <canvas id="breakdown-chart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="dashboard">
+      <div class="card">
+        <h2>📊 カテゴリ別支出</h2>
+        <div class="chart-container">
+          <canvas id="category-chart"></canvas>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>📋 カテゴリ別詳細</h2>
+        <div id="category-details"></div>
+      </div>
+    </div>
+
+    <div class="category-breakdown">
+      <h2>📅 日別支出</h2>
+      <div id="daily-breakdown"></div>
+    </div>
+  </div>
+
+  <script>
+    const transactions = JSON.parse(localStorage.getItem('transactions')) || [];
+    let breakdownChart = null;
+    let categoryChart = null;
+
+    const today = new Date();
+    document.getElementById('report-month').valueAsDate = today;
+
+    document.getElementById('report-month').addEventListener('change', () => {
+      updateReports();
+    });
+
+    function updateReports() {
+      const selectedMonth = document.getElementById('report-month').value || today.toISOString().slice(0, 7);
+      
+      let monthlyIncome = 0;
+      let monthlyExpense = 0;
+      const categoryBreakdown = {};
+      const dailyBreakdown = {};
+
+      transactions.forEach(t => {
+        if (!t.date) return;
+        const tMonth = t.date.slice(0, 7);
+        
+        if (tMonth === selectedMonth) {
+          const amount = parseFloat(t.amount || 0);
+          
+          if (t.type === 'income') {
+            monthlyIncome += amount;
+          } else {
+            monthlyExpense += amount;
+            categoryBreakdown[t.category] = (categoryBreakdown[t.category] || 0) + amount;
+            dailyBreakdown[t.date] = (dailyBreakdown[t.date] || 0) + amount;
+          }
+        }
+      });
+
+      const balance = monthlyIncome - monthlyExpense;
+      const savingsRate = monthlyIncome > 0 ? Math.round((balance / monthlyIncome) * 100) : 0;
+      
+      // 日数を計算
+      const [year, month] = selectedMonth.split('-');
+      const daysInMonth = new Date(year, month, 0).getDate();
+      const avgExpense = daysInMonth > 0 ? Math.round(monthlyExpense / daysInMonth) : 0;
+
+      document.getElementById('report-income').textContent = '¥' + monthlyIncome.toLocaleString();
+      document.getElementById('report-expense').textContent = '¥' + monthlyExpense.toLocaleString();
+      document.getElementById('report-balance').textContent = '¥' + balance.toLocaleString();
+      document.getElementById('report-balance').style.color = balance >= 0 ? '#4CAF50' : '#f44336';
+      document.getElementById('days').textContent = daysInMonth + '日';
+      document.getElementById('avg-expense').textContent = '¥' + avgExpense.toLocaleString();
+      document.getElementById('savings-rate').textContent = savingsRate + '%';
+
+      // 円グラフ（支出内訳）
+      const categories = Object.keys(categoryBreakdown);
+      const amounts = Object.values(categoryBreakdown);
+
+      const breakdownCtx = document.getElementById('breakdown-chart').getContext('2d');
+      if (breakdownChart) breakdownChart.destroy();
+      
+      breakdownChart = new Chart(breakdownCtx, {
+        type: 'doughnut',
+        data: {
+          labels: categories,
+          datasets: [{
+            data: amounts,
+            backgroundColor: ['#667eea', '#764ba2', '#f44336', '#ff9800', '#4CAF50'],
+            borderColor: '#fff',
+            borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'bottom'
+            }
+          }
+        }
+      });
+
+      // 棒グラフ（カテゴリ別）
+      const categoryCtx = document.getElementById('category-chart').getContext('2d');
+      if (categoryChart) categoryChart.destroy();
+      
+      categoryChart = new Chart(categoryCtx, {
+        type: 'bar',
+        data: {
+          labels: categories,
+          datasets: [{
+            label: '支出額',
+            data: amounts,
+            backgroundColor: '#9C27B0',
+            borderColor: '#7B1FA2',
+            borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          indexAxis: 'y',
+          plugins: {
+            legend: {
+              display: false
+            }
+          }
+        }
+      });
+
+      // カテゴリ別詳細
+      const detailsContainer = document.getElementById('category-details');
+      detailsContainer.innerHTML = '';
+      
+      categories.forEach(category => {
+        const percentage = (categoryBreakdown[category] / monthlyExpense) * 100;
+        const div = document.createElement('div');
+        div.className = 'category-item';
+        div.innerHTML = `
+          <span class="category-name">${category}</span>
+          <span class="category-amount">¥${categoryBreakdown[category].toLocaleString()} (${Math.round(percentage)}%)</span>
+        `;
+        detailsContainer.appendChild(div);
+      });
+
+      // 日別支出
+      const dailyContainer = document.getElementById('daily-breakdown');
+      dailyContainer.innerHTML = '';
+      
+      const sortedDays = Object.keys(dailyBreakdown).sort();
+      sortedDays.forEach(date => {
+        const amount = dailyBreakdown[date];
+        const displayDate = date.split('-').reverse().join('/');
+        const div = document.createElement('div');
+        div.className = 'category-item';
+        div.innerHTML = `
+          <span class="category-name">${displayDate}</span>
+          <span class="category-amount">¥${amount.toLocaleString()}</span>
+        `;
+        dailyContainer.appendChild(div);
+      });
+
+      if (sortedDays.length === 0) {
+        dailyContainer.innerHTML = '<p style="text-align: center; color: #999;">この月のデータがありません</p>';
+      }
+    }
+
+    updateReports();
+  </script>
+</body>
+</html>
+      <a href="goal.html">貯金目標</a>
+    </nav>
+    <p>ここではレポートを確認できます。</p>
+  </div>
+</body>
+</html>

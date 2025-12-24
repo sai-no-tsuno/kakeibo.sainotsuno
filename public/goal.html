@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>貯金目標</title>
+  <style>
+      body {
+        font-family: 'Arial', sans-serif;
+        margin: 0;
+        padding: 20px;
+        background-color: #f9f9f9;
+      }
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+        background: #ffffff;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      }
+      h1 {
+        text-align: center;
+        color: #4CAF50;
+        font-family: 'Arial', sans-serif;
+      }
+      nav {
+        text-align: center;
+        margin-bottom: 20px;
+      }
+      nav a {
+        margin: 0 10px;
+        text-decoration: none;
+        color: #4CAF50;
+        font-weight: bold;
+      }
+      nav a:hover {
+        text-decoration: underline;
+      }
+      form {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        margin-bottom: 20px;
+      }
+      label {
+        font-weight: bold;
+        color: #333;
+      }
+      input, select, button {
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-size: 16px;
+      }
+      button {
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        cursor: pointer;
+        transition: background-color 0.3s;
+      }
+      button:hover {
+        background-color: #45a049;
+      }
+      ul {
+        list-style: none;
+        padding: 0;
+      }
+      li {
+        background: #f1f1f1;
+        margin: 10px 0;
+        padding: 10px;
+        border-radius: 8px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      li button {
+        background-color: #e74c3c;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+      }
+      li button:hover {
+        background-color: #c0392b;
+      }
+    </style>
+</head>
+<body>
+  <div class="container">
+    <h1>貯金目標</h1>
+    <nav>
+      <a href="index.html">ホーム</a>
+      <a href="transaction.html">収支管理</a>
+      <a href="budget.html">予算管理</a>
+      <a href="report.html">レポート</a>
+    </nav>
+    <p>ここでは貯金目標を設定できます。</p>
+
+    <form id="goal-form">
+      <label for="goal-amount">目標金額:</label>
+      <input type="number" id="goal-amount" name="goal-amount" required>
+
+      <label for="goal-description">目標の説明:</label>
+      <input type="text" id="goal-description" name="goal-description" required>
+
+      <button type="submit">目標を追加</button>
+    </form>
+
+    <h2>貯金目標一覧</h2>
+    <ul id="goal-list"></ul>
+
+    <h2>ポイント管理</h2>
+    <form id="point-form">
+      <label for="point-amount">ポイント数:</label>
+      <input type="number" id="point-amount" name="point-amount" required>
+
+      <label for="point-description">説明:</label>
+      <input type="text" id="point-description" name="point-description" required>
+
+      <button type="submit">ポイントを追加</button>
+    </form>
+
+    <h2>ポイント履歴</h2>
+    <ul id="point-list"></ul>
+
+    <script>
+      const goalForm = document.getElementById('goal-form');
+      const goalList = document.getElementById('goal-list');
+
+      // ローカルストレージからデータを取得
+      const goals = JSON.parse(localStorage.getItem('goals')) || [];
+
+      // 目標一覧を表示
+      function renderGoals() {
+        goalList.innerHTML = '';
+        goals.forEach((goal, index) => {
+          const li = document.createElement('li');
+          li.textContent = `目標: ${goal.amount}円 - ${goal.description}`;
+          const deleteButton = document.createElement('button');
+          deleteButton.textContent = '削除';
+          deleteButton.addEventListener('click', () => {
+            goals.splice(index, 1);
+            localStorage.setItem('goals', JSON.stringify(goals));
+            renderGoals();
+          });
+          li.appendChild(deleteButton);
+          goalList.appendChild(li);
+        });
+      }
+
+      renderGoals();
+
+      // フォーム送信時の処理
+      goalForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const amount = parseFloat(goalForm['goal-amount'].value);
+        const description = goalForm['goal-description'].value;
+
+        goals.push({ amount, description });
+        localStorage.setItem('goals', JSON.stringify(goals));
+        renderGoals();
+        goalForm.reset();
+      });
+
+      const pointForm = document.getElementById('point-form');
+      const pointList = document.getElementById('point-list');
+
+      // ローカルストレージからポイントデータを取得
+      const points = JSON.parse(localStorage.getItem('points')) || [];
+
+      // ポイント履歴を表示
+      function renderPoints() {
+        pointList.innerHTML = '';
+        points.forEach((point, index) => {
+          const li = document.createElement('li');
+          li.textContent = `ポイント: ${point.amount} - ${point.description}`;
+          const deleteButton = document.createElement('button');
+          deleteButton.textContent = '削除';
+          deleteButton.addEventListener('click', () => {
+            points.splice(index, 1);
+            localStorage.setItem('points', JSON.stringify(points));
+            renderPoints();
+          });
+          li.appendChild(deleteButton);
+          pointList.appendChild(li);
+        });
+      }
+
+      renderPoints();
+
+      // フォーム送信時の処理
+      pointForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const amount = parseFloat(pointForm['point-amount'].value);
+        const description = pointForm['point-description'].value;
+
+        points.push({ amount, description });
+        localStorage.setItem('points', JSON.stringify(points));
+        renderPoints();
+        pointForm.reset();
+      });
+    </script>
+  </div>
+</body>
+</html>
